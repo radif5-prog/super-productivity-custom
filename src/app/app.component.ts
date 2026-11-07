@@ -105,6 +105,7 @@ import {
   whenAnimationsSettle,
 } from './core/startup/boot-splash';
 import { saveLaunchFrame } from './core/startup/launch-frame';
+import { SwipeDirective } from './ui/swipe-gesture/swipe.directive';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -142,6 +143,7 @@ interface BeforeInstallPromptEvent extends Event {
     MobileBottomNavComponent,
     OnboardingHintComponent,
     TaskMultiSelectBarComponent,
+    SwipeDirective,
   ],
 })
 export class AppComponent implements OnDestroy, AfterViewInit {

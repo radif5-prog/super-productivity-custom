@@ -65,6 +65,10 @@
     <main
       #mainContent
       class="main-content"
+      swipeGesture
+      [swipeEnabled]="isShowMobileButtonNav()"
+      [swipeStartEdgePx]="24"
+      (swiperight)="magicSideNav.toggleMobileNav()"
     >
       <right-panel>
         <header
