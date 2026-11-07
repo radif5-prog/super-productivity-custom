@@ -13,6 +13,7 @@
     <mat-icon>wb_sunny</mat-icon>
     <span class="nav-label">{{ T.G.TODAY_TAG_TITLE | translate }}</span>
   </button>
+
   @if (slot(); as slot) {
     <!-- Tap navigates; long-press or contextmenu (right click, menu key) picks
          the destination. The anchor only positions the menu; its
@@ -54,6 +55,7 @@
       ></span>
     </button>
   }
+
   <button
     mat-fab
     class="add-task-button"
@@ -64,129 +66,7 @@
   >
     <mat-icon>add</mat-icon>
   </button>
-
-  @if (sidePanelItemCount() === 1) {
-    <!-- A menu with a single entry is just an extra tap: show the entry itself. -->
-    @if (sidePanelButtons()[0]; as button) {
-      <button
-        mat-button
-        class="nav-button"
-        [class.active]="activePluginId() === button.pluginId && isShowPluginPanel()"
-        [attr.aria-pressed]="activePluginId() === button.pluginId && isShowPluginPanel()"
-        (click)="onPluginButtonClick(button)"
-        [attr.aria-label]="button.label"
-      >
-        <plugin-icon
-          [pluginId]="button.pluginId"
-          [fallbackIcon]="button.icon || 'extension'"
-        ></plugin-icon>
-        <span class="nav-label">{{ button.label }}</span>
-      </button>
-    } @else if (isScheduleDayPanelEnabled()) {
-      <button
-        mat-button
-        class="nav-button e2e-toggle-schedule-day-panel"
-        [class.active]="isShowScheduleDayPanel()"
-        [attr.aria-pressed]="isShowScheduleDayPanel()"
-        (click)="toggleScheduleDayPanel()"
-        [attr.aria-label]="T.BN.SHOW_SCHEDULE | translate"
-      >
-        <mat-icon>schedule</mat-icon>
-        <span class="nav-label">{{ T.BN.SHOW_SCHEDULE | translate }}</span>
-      </button>
-    } @else if (isIssuesPanelEnabled()) {
-      <button
-        mat-button
-        class="nav-button e2e-toggle-issue-provider-panel"
-        [class.active]="isShowIssuePanel()"
-        [attr.aria-pressed]="isShowIssuePanel()"
-        (click)="toggleIssuePanel()"
-        [attr.aria-label]="T.BN.SHOW_ISSUE_PANEL | translate"
-      >
-        <mat-icon>webhook</mat-icon>
-        <span class="nav-label">{{ T.BN.SHOW_ISSUE_PANEL | translate }}</span>
-      </button>
-    } @else if (isProjectNotesEnabled()) {
-      <button
-        mat-button
-        class="nav-button e2e-toggle-notes-btn"
-        [class.active]="isShowNotes()"
-        [attr.aria-pressed]="isShowNotes()"
-        (click)="toggleNotes()"
-        [attr.aria-label]="T.BN.SHOW_NOTES | translate"
-      >
-        <mat-icon>comment</mat-icon>
-        <span class="nav-label">{{ T.BN.SHOW_NOTES | translate }}</span>
-      </button>
-    }
-  } @else if (sidePanelItemCount() > 1) {
-    <button
-      mat-button
-      class="nav-button"
-      [matMenuTriggerFor]="panelsMenu"
-      [attr.aria-label]="T.MH.SIDE_PANEL_MENU | translate"
-    >
-      <mat-icon>bottom_panel_open</mat-icon>
-      <span class="nav-label">{{ T.MH.SIDE_PANEL_MENU | translate }}</span>
-    </button>
-  }
 </nav>
-
-<mat-menu
-  #panelsMenu="matMenu"
-  class="mobile-bottom-nav-panels-menu"
->
-  @for (button of sidePanelButtons(); track button.pluginId) {
-    <button
-      mat-menu-item
-      (click)="onPluginButtonClick(button)"
-      [class.active]="activePluginId() === button.pluginId && isShowPluginPanel()"
-    >
-      <plugin-icon
-        matMenuItemIcon
-        [pluginId]="button.pluginId"
-        [fallbackIcon]="button.icon || 'extension'"
-      ></plugin-icon>
-      <span>{{ button.label }}</span>
-    </button>
-  }
-
-  @if (isScheduleDayPanelEnabled()) {
-    <button
-      mat-menu-item
-      class="e2e-toggle-schedule-day-panel"
-      [class.active]="isShowScheduleDayPanel()"
-      (click)="toggleScheduleDayPanel()"
-    >
-      <mat-icon>schedule</mat-icon>
-      <span>{{ T.BN.SHOW_SCHEDULE | translate }}</span>
-    </button>
-  }
-
-  @if (isIssuesPanelEnabled()) {
-    <button
-      mat-menu-item
-      class="e2e-toggle-issue-provider-panel"
-      [class.active]="isShowIssuePanel()"
-      (click)="toggleIssuePanel()"
-    >
-      <mat-icon>webhook</mat-icon>
-      <span>{{ T.BN.SHOW_ISSUE_PANEL | translate }}</span>
-    </button>
-  }
-
-  @if (isProjectNotesEnabled()) {
-    <button
-      mat-menu-item
-      class="e2e-toggle-notes-btn"
-      [class.active]="isShowNotes()"
-      (click)="toggleNotes()"
-    >
-      <mat-icon>comment</mat-icon>
-      <span>{{ T.BN.SHOW_NOTES | translate }}</span>
-    </button>
-  }
-</mat-menu>
 
 <mat-menu
   #slotMenu="matMenu"

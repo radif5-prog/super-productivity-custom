@@ -1,4 +1,16 @@
 <div class="wrapper">
+  @if (hasBottomNav()) {
+    <button
+      class="mobile-nav-menu-btn"
+      type="button"
+      mat-icon-button
+      [attr.aria-label]="T.MH.PROJECT_MENU | translate"
+      (click)="toggleMobileNav()"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+  }
+
   @if (isDataLoaded()) {
     <page-title></page-title>
   }
@@ -151,10 +163,8 @@
         ></plugin-work-context-header-btns>
         <plugin-header-btns class="secondary-header-action"></plugin-header-btns>
 
-        <!-- One action, one home: below 600px the bottom nav's panels menu
-             lists these (or shows a lone one as a nav button), so the header
-             must not render them as well. Rendering
-             both put the same plugin button in two places on a phone at once. -->
+        <!-- Desktop-only panel actions. On phones they live in the header's
+             overflow menu below, so each action has exactly one home. -->
         @if (!hasBottomNav()) {
           <plugin-side-panel-btns
             class="secondary-header-action"
@@ -170,6 +180,21 @@
         }
       }
     </div>
+
+    <!-- Mobile-only home for the built-in side-panel controls. The bottom bar
+         deliberately has no duplicate panel actions. -->
+    @if (hasBottomNav() && mobilePanelItemCount() > 0) {
+      <div class="header-action-group secondary-action-group mobile-panel-menu-wrapper">
+        <button
+          type="button"
+          mat-icon-button
+          [matMenuTriggerFor]="mobilePanelsMenu"
+          [attr.aria-label]="T.MH.SIDE_PANEL_MENU | translate"
+        >
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </div>
+    }
 
     <!--
       The collapsed counters, below 600px only.
@@ -227,3 +252,45 @@
     }
   </nav>
 </div>
+
+<mat-menu
+  #mobilePanelsMenu="matMenu"
+  class="mobile-header-panels-menu"
+  [ariaLabel]="T.MH.SIDE_PANEL_MENU | translate"
+>
+  @if (isScheduleDayPanelEnabled()) {
+    <button
+      mat-menu-item
+      class="e2e-toggle-schedule-day-panel"
+      [class.active]="isShowScheduleDayPanel()"
+      (click)="toggleScheduleDayPanel()"
+    >
+      <mat-icon>schedule</mat-icon>
+      <span>{{ T.BN.SHOW_SCHEDULE | translate }}</span>
+    </button>
+  }
+
+  @if (isIssuesPanelEnabled()) {
+    <button
+      mat-menu-item
+      class="e2e-toggle-issue-provider-panel"
+      [class.active]="isShowIssuePanel()"
+      (click)="toggleIssuePanel()"
+    >
+      <mat-icon>webhook</mat-icon>
+      <span>{{ T.BN.SHOW_ISSUE_PANEL | translate }}</span>
+    </button>
+  }
+
+  @if (isProjectNotesEnabled()) {
+    <button
+      mat-menu-item
+      class="e2e-toggle-notes-btn"
+      [class.active]="isShowNotes()"
+      (click)="toggleNotes()"
+    >
+      <mat-icon>comment</mat-icon>
+      <span>{{ T.BN.SHOW_NOTES | translate }}</span>
+    </button>
+  }
+</mat-menu>

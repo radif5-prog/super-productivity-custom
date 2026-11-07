@@ -71,7 +71,9 @@
           [class.isNotScrolled]="!layoutService.isWorkViewScrolled()"
           class="header-wrapper"
         >
-          <main-header></main-header>
+          <main-header
+            (toggleMobileNavEvent)="magicSideNav.toggleMobileNav()"
+          ></main-header>
 
           <banner></banner>
           <global-progress-bar></global-progress-bar>
