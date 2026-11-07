@@ -36,8 +36,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 2px;
     height: var(--bottom-nav-height);
     min-width: 0;
+    padding: 6px 4px;
     border-radius: var(--radius-xl);
     transition: var(--transition-standard);
 
@@ -52,9 +54,9 @@
     }
 
     mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
       padding: 0;
       margin: 0;
     }
@@ -79,6 +81,18 @@
     }
   }
 
+  .nav-label {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-tight);
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   // Zero-size anchor at the slot's top centre, so the destination menu opens
   // above the bar instead of under the finger.
   .slot-menu-anchor {
@@ -91,6 +105,7 @@
   }
 
   .add-task-button {
+    position: relative;
     flex: 0 0 var(--s7);
     width: var(--s7);
     height: var(--s7);
@@ -107,6 +122,14 @@
 
     &:active {
       transform: scale(0.95);
+    }
+
+    .add-task-label {
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 50%;
+      min-width: max-content;
+      transform: translateX(-50%);
     }
 
     &.smaller {

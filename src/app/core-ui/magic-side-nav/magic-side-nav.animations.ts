@@ -6,7 +6,7 @@ const HIDE_CONTENT_PROP = CSS.supports('content-visibility', 'hidden')
   : 'visibility';
 
 export const magicSideNavAnimations = [
-  // Mobile animation - slides from right
+  // Mobile animation - slides from left
   // The closed drawer stays in the DOM. `content-visibility: hidden` keeps its
   // rows out of the tab order and the accessibility tree, and unlike
   // `visibility` it does not restyle the whole subtree on every toggle (~50ms at
@@ -14,18 +14,18 @@ export const magicSideNavAnimations = [
   trigger('mobileNavRight', [
     state(
       'hidden',
-      style({ transform: 'translateX(100%)', [HIDE_CONTENT_PROP]: 'hidden' }),
+      style({ transform: 'translateX(-100%)', [HIDE_CONTENT_PROP]: 'hidden' }),
     ),
     transition('void => visible, hidden => visible', [
       style({
-        transform: 'translateX(100%)',
+        transform: 'translateX(-100%)',
         opacity: 0,
         [HIDE_CONTENT_PROP]: 'visible',
       }),
       animate(ANI_ENTER_TIMING, style({ transform: 'translateX(0)', opacity: 1 })),
     ]),
     transition('visible => hidden, visible => void', [
-      animate(ANI_LEAVE_TIMING, style({ transform: 'translateX(100%)' })),
+      animate(ANI_LEAVE_TIMING, style({ transform: 'translateX(-100%)' })),
     ]),
   ]),
   trigger('mobileBackdrop', [

@@ -11,6 +11,7 @@
     [attr.aria-label]="T.G.TODAY_TAG_TITLE | translate"
   >
     <mat-icon>wb_sunny</mat-icon>
+    <span class="nav-label">{{ T.G.TODAY_TAG_TITLE | translate }}</span>
   </button>
   @if (slot(); as slot) {
     <!-- Tap navigates; long-press or contextmenu (right click, menu key) picks
@@ -33,11 +34,13 @@
     >
       @if (slot.kind === 'route') {
         <mat-icon>{{ slot.icon }}</mat-icon>
+        <span class="nav-label">{{ slot.labelKey | translate }}</span>
       } @else {
         <plugin-icon
           [pluginId]="slot.pluginId"
           [fallbackIcon]="slot.icon"
         ></plugin-icon>
+        <span class="nav-label">{{ slot.label }}</span>
       }
       <span
         class="slot-menu-anchor"
@@ -60,6 +63,9 @@
     [attr.aria-label]="T.GCF.KEYBOARD.GLOBAL_ADD_TASK | translate"
   >
     <mat-icon>add</mat-icon>
+    <span class="nav-label add-task-label">{{
+      T.GCF.KEYBOARD.GLOBAL_ADD_TASK | translate
+    }}</span>
   </button>
 
   @if (sidePanelItemCount() === 1) {
@@ -77,6 +83,7 @@
           [pluginId]="button.pluginId"
           [fallbackIcon]="button.icon || 'extension'"
         ></plugin-icon>
+        <span class="nav-label">{{ button.label }}</span>
       </button>
     } @else if (isScheduleDayPanelEnabled()) {
       <button
@@ -88,6 +95,7 @@
         [attr.aria-label]="T.BN.SHOW_SCHEDULE | translate"
       >
         <mat-icon>schedule</mat-icon>
+        <span class="nav-label">{{ T.BN.SHOW_SCHEDULE | translate }}</span>
       </button>
     } @else if (isIssuesPanelEnabled()) {
       <button
@@ -99,6 +107,7 @@
         [attr.aria-label]="T.BN.SHOW_ISSUE_PANEL | translate"
       >
         <mat-icon>webhook</mat-icon>
+        <span class="nav-label">{{ T.BN.SHOW_ISSUE_PANEL | translate }}</span>
       </button>
     } @else if (isProjectNotesEnabled()) {
       <button
@@ -110,6 +119,7 @@
         [attr.aria-label]="T.BN.SHOW_NOTES | translate"
       >
         <mat-icon>comment</mat-icon>
+        <span class="nav-label">{{ T.BN.SHOW_NOTES | translate }}</span>
       </button>
     }
   } @else if (sidePanelItemCount() > 1) {
@@ -120,6 +130,7 @@
       [attr.aria-label]="T.MH.SIDE_PANEL_MENU | translate"
     >
       <mat-icon>bottom_panel_open</mat-icon>
+      <span class="nav-label">{{ T.MH.SIDE_PANEL_MENU | translate }}</span>
     </button>
   }
 
@@ -130,6 +141,7 @@
     [attr.aria-label]="T.MH.PROJECT_MENU | translate"
   >
     <mat-icon>menu</mat-icon>
+    <span class="nav-label">{{ T.MH.PROJECT_MENU | translate }}</span>
   </button>
 </nav>
 
