@@ -63,9 +63,6 @@
     [attr.aria-label]="T.GCF.KEYBOARD.GLOBAL_ADD_TASK | translate"
   >
     <mat-icon>add</mat-icon>
-    <span class="nav-label add-task-label">{{
-      T.GCF.KEYBOARD.GLOBAL_ADD_TASK | translate
-    }}</span>
   </button>
 
   @if (sidePanelItemCount() === 1) {
@@ -133,16 +130,6 @@
       <span class="nav-label">{{ T.MH.SIDE_PANEL_MENU | translate }}</span>
     </button>
   }
-
-  <button
-    mat-button
-    class="nav-button tour-navMenuBtn"
-    (click)="toggleMobileNav()"
-    [attr.aria-label]="T.MH.PROJECT_MENU | translate"
-  >
-    <mat-icon>menu</mat-icon>
-    <span class="nav-label">{{ T.MH.PROJECT_MENU | translate }}</span>
-  </button>
 </nav>
 
 <mat-menu
