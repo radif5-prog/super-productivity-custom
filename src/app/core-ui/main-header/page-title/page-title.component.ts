@@ -216,6 +216,7 @@ import { LayoutService } from '../../layout/layout.service';
       }
     }
   `,
+  styleUrls: ['./page-title.component.scss'],
   styles: [
     `
       :host {
@@ -346,13 +347,6 @@ import { LayoutService } from '../../layout/layout.service';
         }
       }
 
-      /* Fallback for a viewport change before Angular updates `isXs()`: the
-         template also removes this button structurally on phones. */
-      @media (max-width: 599px) {
-        .view-layout-btn {
-          display: none !important;
-        }
-      }
 
       .page-title-actions {
         display: flex;
