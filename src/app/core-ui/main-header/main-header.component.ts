@@ -158,6 +158,15 @@ export class MainHeaderComponent implements OnDestroy {
       Number(this.isProjectNotesEnabled()),
   );
 
+  /** Number of actions available from the mobile header overflow menu. */
+  readonly mobileHeaderMenuItemCount = computed(
+    () => Number(this.isTimeTrackingEnabled()) + this.mobilePanelItemCount(),
+  );
+
+  readonly isTimeTrackingDisabled = computed(
+    () => !this.currentTaskId() && !this.hasTrackableTasks(),
+  );
+
   private readonly _activePanelKey = computed<string | null>(() => {
     if (this.isShowNotes()) {
       return 'NOTES';
@@ -302,6 +311,10 @@ export class MainHeaderComponent implements OnDestroy {
 
   toggleMobileNav(): void {
     this.toggleMobileNavEvent.emit();
+  }
+
+  toggleTimeTracking(): void {
+    this.taskService.toggleStartTask();
   }
 
   toggleIssuePanel(): void {

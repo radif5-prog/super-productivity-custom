@@ -78,7 +78,7 @@
       (wheel)="onActionWheel($event)"
     >
       <div class="header-action-group primary-action-group">
-        @if (isDataLoaded() && isTimeTrackingEnabled()) {
+        @if (isDataLoaded() && isTimeTrackingEnabled() && !hasBottomNav()) {
           <play-button
             [isMobile]="isXs()"
             [currentTaskId]="currentTaskId()"
@@ -181,9 +181,9 @@
       }
     </div>
 
-    <!-- Mobile-only home for the built-in side-panel controls. The bottom bar
-         deliberately has no duplicate panel actions. -->
-    @if (hasBottomNav() && mobilePanelItemCount() > 0) {
+    <!-- Mobile-only home for time tracking and the built-in side-panel controls.
+         The bottom bar deliberately has no duplicate panel actions. -->
+    @if (hasBottomNav() && mobileHeaderMenuItemCount() > 0) {
       <div class="header-action-group secondary-action-group mobile-panel-menu-wrapper">
         <button
           type="button"
@@ -258,6 +258,18 @@
   class="mobile-header-panels-menu"
   [ariaLabel]="T.MH.SIDE_PANEL_MENU | translate"
 >
+  @if (isTimeTrackingEnabled()) {
+    <button
+      mat-menu-item
+      class="mobile-toggle-time-tracking"
+      [disabled]="isTimeTrackingDisabled()"
+      (click)="toggleTimeTracking()"
+    >
+      <mat-icon>{{ currentTaskId() ? 'pause' : 'play_arrow' }}</mat-icon>
+      <span>{{ T.MH.TOGGLE_TRACK_TIME | translate }}</span>
+    </button>
+  }
+
   @if (isScheduleDayPanelEnabled()) {
     <button
       mat-menu-item

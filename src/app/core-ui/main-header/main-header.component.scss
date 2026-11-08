@@ -445,9 +445,11 @@ button {
 }
 
 // The collapsed counters, below 600px (see the template for why this sits
-// outside the scroller). A direct child of the nav rather than of
-// `.action-nav-scroll`, so the shrink rule scoped to that box does not reach
-// it — state it here, or a tight row squeezes the trigger instead of scrolling.
+// outside the scroller). Time tracking is moved to the Material overflow menu
+// by the template, so only this counter tray needs to stay in the action row.
+// A direct child of the nav rather than of `.action-nav-scroll`, so the shrink
+// rule scoped to that box does not reach it — state it here, or a tight row
+// squeezes the trigger instead of scrolling.
 .mobile-dropdown-wrapper {
   position: relative;
   flex-shrink: 0;
