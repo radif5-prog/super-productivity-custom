@@ -35,7 +35,6 @@ import { T } from '../../../t.const';
 import { ViewTaskListRegistry } from '../../tasks/view-task-list-registry.service';
 import { ViewCriteriaContextService } from '../view-criteria-context.service';
 import { expandOutOnlyAnimation } from '../../../ui/animations/expand.ani';
-import { LayoutService } from '../../../core-ui/layout/layout.service';
 
 // The tags the default views use, created with their fixed ids.
 const DEFAULT_VIEW_TAGS = [IMPORTANT_TAG, URGENT_TAG, IN_PROGRESS_TAG];
@@ -59,7 +58,6 @@ export class BoardComponent {
   private _store = inject(Store);
   private _translateService = inject(TranslateService);
   private _boardsService = inject(BoardsService);
-  private _layoutService = inject(LayoutService);
   private _viewCtx = inject(ViewCriteriaContextService);
   private _element = inject<ElementRef<HTMLElement>>(ElementRef);
   private _injector = inject(Injector);
@@ -102,14 +100,10 @@ export class BoardComponent {
     target.focusRow(event.rowIndex, event.focusTaskId ?? event.taskIds?.[0]);
   }
 
-  // Cards side by side, rows when stacked: a one-column view, and any view on
-  // a phone (where the grid stacks its columns), reads like a task list: task
-  // rows instead of cards, its stacked panels being sections of that list
-  // (rows move between them by drag and keyboard as cards did). The stored
-  // layout stays as it is.
-  readonly isListLayout = computed(
-    () => this.boardCfg().cols <= 1 || this._layoutService.isXs(),
-  );
+  // `boardCfg` is a signal input, so `setViewLayout()` updating its column
+  // count automatically recomputes this value and re-renders the board.
+  // A one-column view uses task rows; two or more columns use board cards.
+  readonly isListLayout = computed(() => this.boardCfg().cols <= 1);
   readonly isSectioned = computed(
     () => this.isListLayout() && this.boardCfg().panels.length > 1,
   );
