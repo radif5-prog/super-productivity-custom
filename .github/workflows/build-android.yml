@@ -180,7 +180,6 @@ jobs:
       # so they interleave on the track without colliding. Chosen over a closed
       # track because internal testing skips review, so builds land in minutes.
       - name: Upload dev build to Play (internal track)
-        if: false
         # continue-on-error: re-runs (same commit -> same versionCode, which Play
         # rejects as already used), the post-release window (a just-tagged release
         # has a higher code on this track until the tag propagates to the dev
