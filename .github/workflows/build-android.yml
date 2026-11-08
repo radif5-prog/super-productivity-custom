@@ -52,8 +52,6 @@ jobs:
       - name: Format code with Prettier
         run: npm run prettier
 
-      - name: Build web application
-        run: npm run build
 
       - name: Build web app for Capacitor
         run: npm run buildFrontend:prodWeb
