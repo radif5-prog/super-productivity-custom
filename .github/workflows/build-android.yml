@@ -55,6 +55,9 @@ jobs:
       - name: Build web application
         run: npm run build
 
+      - name: Build web app for Capacitor
+        run: npm run buildFrontend:prodWeb
+
       - name: Sync Capacitor Android project
         run: npx cap sync android
 
