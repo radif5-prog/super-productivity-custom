@@ -170,7 +170,7 @@ import { LayoutService } from '../../layout/layout.service';
                keep the title bar to the view's name and its ⋮ menu: more
                buttons left the title a word ("Open …") at 360px. The title
                opens the editor, which also sets the layout. -->
-          @if (!isXs() && viewLayoutSwitch(); as layoutSwitch) {
+          @if (isXs() === false && viewLayoutSwitch(); as layoutSwitch) {
             <button
               class="view-layout-btn"
               (click)="toggleViewLayout(board)"
