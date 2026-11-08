@@ -16,7 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { filter, map } from 'rxjs/operators';
+import { filter, map, scan } from 'rxjs/operators';
 
 import { LayoutService } from '../layout/layout.service';
 import { PluginBridgeService } from '../../plugins/plugin-bridge.service';
@@ -24,6 +24,8 @@ import { PluginIconComponent } from '../../plugins/ui/plugin-icon/plugin-icon.co
 import { Store } from '@ngrx/store';
 import { T } from '../../t.const';
 import { WorkContextService } from '../../features/work-context/work-context.service';
+import { WorkContextType } from '../../features/work-context/work-context.model';
+import { TODAY_TAG } from '../../features/tag/tag.const';
 import { GlobalConfigService } from '../../features/config/global-config.service';
 import { LongPressDirective } from '../../ui/longpress/longpress.directive';
 import { performHapticFeedback } from '../../util/haptic-feedback';
@@ -74,6 +76,26 @@ export class MobileBottomNavComponent {
 
   readonly hasProjectBacklog = toSignal(
     this._workContextService.activeWorkContext$.pipe(map((ac) => ac.isEnableBacklog)),
+  );
+
+  private readonly _lastActiveProjectId = toSignal(
+    this._workContextService.activeWorkContext$.pipe(
+      map((workContext) =>
+        workContext.type === WorkContextType.PROJECT ? workContext.id : null,
+      ),
+      scan(
+        (lastProjectId: string | null, projectId) => projectId ?? lastProjectId,
+        null,
+      ),
+    ),
+    { initialValue: null },
+  );
+
+  readonly tasksRoute = computed(
+    () =>
+      this._lastActiveProjectId()
+        ? `/project/${this._lastActiveProjectId()}/tasks`
+        : `/tag/${TODAY_TAG.id}/tasks`,
   );
 
   // Second slot: configurable destination, Planner by default (#7637).
