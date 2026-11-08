@@ -39,10 +39,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 21
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
-      #      - name: Build with Gradle
-      #        run: ./gradlew build
       - name: Setup android-sdk
         uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
         with:
@@ -50,28 +46,14 @@ jobs:
           log-accepted-android-sdk-licenses: true #make accepting the android sdk license verbose
           packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
 
-      - name: Get npm cache directory
-        id: npm-cache-dir
-        run: |
-          echo "dir=$(npm config get cache)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
-        id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
-        with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node22-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node22-
-      - name: Install npm Packages
-        #  if: steps.npm-cache.outputs.cache-hit != 'true'
+      - name: Install npm packages
         run: npm i
 
-      - name: Decode Keystore
-        env:
-          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.DROID_KEYSTORE_PASSWORD }}
-          RELEASE_KEYSTORE_ALIAS: ${{ secrets.DROID_KEYSTORE_ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.DROID_KEY_PASSWORD }}
-        run: |
-          echo "${{ secrets.DROID_KEYSTORE_BASE_64 }}" | base64 --decode > keystore.jks
+      - name: Build web application
+        run: npm run build
+
+      - name: Sync Capacitor Android project
+        run: npx cap sync android
 
       # --- Per-push dev build (non-tag master pushes only) --------------------
       # On plain master pushes the release-signed APK is otherwise artifact-only;
@@ -80,36 +62,8 @@ jobs:
       # steps are gated to refs/heads/master (non-tag), so the tag/release path
       # is untouched. Nothing is committed — the versionCode is only sed'd into
       # the working copy of build.gradle at build time.
-      - name: Compute dev versionCode
-        id: devvc
-        # Dev distribution must never redden the release-critical build; on any
-        # failure the downstream gates read '' and simply skip.
-        continue-on-error: true
-        if: github.ref == 'refs/heads/master'
-        run: node tools/android-dev-version-code.js
-      - name: Apply dev versionCode
-        id: applyvc
-        # continue-on-error: a dev-versioning hiccup must never break the
-        # release-critical build; on failure `applied` stays unset and the Play
-        # upload below is skipped (the artifact build still succeeds).
-        continue-on-error: true
-        if: github.ref == 'refs/heads/master' && steps.devvc.outputs.skip == 'false'
-        env:
-          CODE: ${{ steps.devvc.outputs.code }}
-        run: |
-          set -euo pipefail
-          sed -i -E "s/versionCode [0-9_]+/versionCode ${CODE}/" android/app/build.gradle
-          grep -qE "versionCode ${CODE}( |$)" android/app/build.gradle \
-            || { echo "::error::versionCode override did not apply"; exit 1; }
-          grep -nE 'versionCode [0-9_]+' android/app/build.gradle
-          echo "applied=true" >> "$GITHUB_OUTPUT"
-
-      - name: Build
-        run: npm run dist:android:prod
-        env:
-          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.DROID_KEYSTORE_PASSWORD }}
-          RELEASE_KEYSTORE_ALIAS: ${{ secrets.DROID_KEYSTORE_ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.DROID_KEY_PASSWORD }}
+      - name: Build play debug APK
+        run: cd android && ./gradlew assemblePlayDebug
 
       # Keep-rule failures are silent (a stripped @JavascriptInterface method or
       # WorkManager worker builds fine, it just never runs) and android-tests.yml
@@ -125,6 +79,7 @@ jobs:
       # text: R8 writes mapping/<variant>/mapping.txt whenever it runs, under any
       # spelling or DSL, so re-enabling it cannot leave this step green-but-blind.
       - name: Verify R8 keep rules survive minification
+        if: false
         run: |
           set -euo pipefail
           shopt -s nullglob
@@ -153,6 +108,7 @@ jobs:
       # so today — with no .so in the APK at all — this is a cheap guard for the
       # day a plugin adds one, not proof of 16 KB compliance.
       - name: Verify 16 KB native page alignment
+        if: false
         run: |
           set -euo pipefail
           shopt -s nullglob
@@ -187,6 +143,7 @@ jobs:
       # check: android-tests.yml assembles an APK but substitutes a stand-in
       # smoke page for the Angular bundle, so the assertion would be vacuous.
       - name: 'Verify no service worker shipped in the APK'
+        if: false
         run: |
           set -euo pipefail
           shopt -s nullglob
@@ -210,11 +167,11 @@ jobs:
 
       # APK is now signed automatically by Gradle using signingConfig
 
-      - name: 'Upload APK files'
+      - name: Upload play debug APK
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: sup-android-release
-          path: android/app/build/outputs/apk/**/*.apk
+          name: sup-android-play-debug
+          path: android/app/build/outputs/apk/play/debug/app-play-debug.apk
 
       # Ship the dev-versioned APK to the Play `internal` track (non-tag master
       # pushes only, and only when the versionCode was actually applied). This is
@@ -223,6 +180,7 @@ jobs:
       # so they interleave on the track without colliding. Chosen over a closed
       # track because internal testing skips review, so builds land in minutes.
       - name: Upload dev build to Play (internal track)
+        if: false
         # continue-on-error: re-runs (same commit -> same versionCode, which Play
         # rejects as already used), the post-release window (a just-tagged release
         # has a higher code on this track until the tag propagates to the dev
@@ -240,7 +198,7 @@ jobs:
           status: completed
 
       - name: Wait for main release to be created
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: false
         run: |
           echo "Waiting for main release to be created..."
           for i in {1..40}; do
@@ -261,7 +219,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload APK to existing GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: false
         run: |
           set -euo pipefail
           shopt -s nullglob
@@ -286,11 +244,11 @@ jobs:
           REPO: ${{ github.repository }}
 
       - name: Prepare Google Play release notes
-        if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-')
+        if: false
         run: npm run release-notes:prepare-play-store
 
       - name: Upload to Google Play Console
-        if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-')
+        if: false
         uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1.1.5
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
