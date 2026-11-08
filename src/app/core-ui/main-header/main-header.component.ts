@@ -109,33 +109,37 @@ export class MainHeaderComponent implements OnDestroy {
   readonly T = T;
   readonly isXs = this.layoutService.isXs;
 
-  private readonly _currentTaskContext$ = this.taskService.currentTaskParentOrCurrent$.pipe(
-    filter((ct) => !!ct),
-    switchMap((currentTask) =>
-      this.workContextService.activeWorkContextId$.pipe(
-        filter((activeWorkContextId) => !!activeWorkContextId),
-        switchMap((activeWorkContextId) => {
-          if (
-            currentTask.projectId === activeWorkContextId ||
-            currentTask.tagIds.includes(activeWorkContextId as string)
-          ) {
-            return of(null);
-          }
-          return currentTask.projectId
-            ? this.projectService.getByIdOnce$(currentTask.projectId)
-            : of(null);
-        }),
+  private readonly _currentTaskContext$ =
+    this.taskService.currentTaskParentOrCurrent$.pipe(
+      filter((ct) => !!ct),
+      switchMap((currentTask) =>
+        this.workContextService.activeWorkContextId$.pipe(
+          filter((activeWorkContextId) => !!activeWorkContextId),
+          switchMap((activeWorkContextId) => {
+            if (
+              currentTask.projectId === activeWorkContextId ||
+              currentTask.tagIds.includes(activeWorkContextId as string)
+            ) {
+              return of(null);
+            }
+            return currentTask.projectId
+              ? this.projectService.getByIdOnce$(currentTask.projectId)
+              : of(null);
+          }),
+        ),
       ),
-    ),
-  );
+    );
 
   readonly currentTaskContext = toSignal(this._currentTaskContext$);
   readonly currentTask = toSignal(this.taskService.currentTask$);
   readonly currentTaskId = this.taskService.currentTaskId;
   readonly isRemoteTrackingShown = inject(TrackingPresenceService).isRemoteSessionShown;
-  readonly enabledSimpleCounters = toSignal(this.simpleCounterService.enabledSimpleCounters$, {
-    initialValue: [],
-  });
+  readonly enabledSimpleCounters = toSignal(
+    this.simpleCounterService.enabledSimpleCounters$,
+    {
+      initialValue: [],
+    },
+  );
   readonly isShowIssuePanel = this.layoutService.isShowIssuePanel;
   readonly isShowNotes = this.layoutService.isShowNotes;
   readonly isShowScheduleDayPanel = this.layoutService.isShowScheduleDayPanel;
