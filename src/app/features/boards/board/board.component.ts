@@ -10,6 +10,7 @@ import {
   inject,
   Injector,
   input,
+  signal,
   untracked,
   viewChildren,
 } from '@angular/core';
@@ -35,6 +36,7 @@ import { T } from '../../../t.const';
 import { ViewTaskListRegistry } from '../../tasks/view-task-list-registry.service';
 import { ViewCriteriaContextService } from '../view-criteria-context.service';
 import { expandOutOnlyAnimation } from '../../../ui/animations/expand.ani';
+import { LayoutService } from '../../../core-ui/layout/layout.service';
 
 // The tags the default views use, created with their fixed ids.
 const DEFAULT_VIEW_TAGS = [IMPORTANT_TAG, URGENT_TAG, IN_PROGRESS_TAG];
@@ -59,10 +61,12 @@ export class BoardComponent {
   private _translateService = inject(TranslateService);
   private _boardsService = inject(BoardsService);
   private _viewCtx = inject(ViewCriteriaContextService);
+  readonly isXs = inject(LayoutService).isXs;
   private _element = inject<ElementRef<HTMLElement>>(ElementRef);
   private _injector = inject(Injector);
 
   boardCfg = input.required<BoardCfg>();
+  private _selectedMobilePanelId = signal<string | null>(null);
   private _panels = viewChildren(BoardPanelComponent);
   private _panelElements = viewChildren(BoardPanelComponent, { read: ElementRef });
 
@@ -107,6 +111,18 @@ export class BoardComponent {
   readonly isSectioned = computed(
     () => this.isListLayout() && this.boardCfg().panels.length > 1,
   );
+
+  // A board is shown one column at a time on phones. Falling back to the first
+  // panel also handles switching views or deleting the currently selected panel.
+  readonly selectedMobilePanelId = computed(() => {
+    const panels = this.boardCfg().panels;
+    const selectedId = this._selectedMobilePanelId();
+    return panels.some((panel) => panel.id === selectedId) ? selectedId : panels[0]?.id;
+  });
+
+  selectMobilePanel(panelId: string): void {
+    this._selectedMobilePanelId.set(panelId);
+  }
 
   constructor() {
     // The open view list's columns, in display order: the add-task bar adds

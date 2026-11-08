@@ -37,13 +37,36 @@
   </div>
 }
 
+@if (isXs() && !isListLayout() && boardCfg().panels.length) {
+  <div
+    class="mobile-panel-tabs"
+    role="tablist"
+    [attr.aria-label]="boardCfg().title"
+  >
+    @for (panel of boardCfg().panels; track panel.id) {
+      <button
+        class="mobile-panel-tab"
+        type="button"
+        role="tab"
+        [class.isActive]="selectedMobilePanelId() === panel.id"
+        [attr.aria-selected]="selectedMobilePanelId() === panel.id"
+        (click)="selectMobilePanel(panel.id)"
+      >
+        {{ panel.title }}
+      </button>
+    }
+  </div>
+}
+
 @for (panel of boardCfg().panels; track panel.id) {
-  <board-panel
-    [panelCfg]="panel"
-    [isListLayout]="isListLayout()"
-    [isSection]="isSectioned()"
-    (editBoard)="editBoard()"
-    (editColumn)="editBoard(panel.id)"
-    (adjacentPanel)="adjacentPanel(panel.id, $event)"
-  ></board-panel>
+  @if (!isXs() || isListLayout() || selectedMobilePanelId() === panel.id) {
+    <board-panel
+      [panelCfg]="panel"
+      [isListLayout]="isListLayout()"
+      [isSection]="isSectioned()"
+      (editBoard)="editBoard()"
+      (editColumn)="editBoard(panel.id)"
+      (adjacentPanel)="adjacentPanel(panel.id, $event)"
+    ></board-panel>
+  }
 }
