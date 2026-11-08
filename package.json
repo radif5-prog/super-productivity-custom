@@ -289,7 +289,7 @@
     "cross-env": "^10.1.0",
     "detect-it": "^4.0.1",
     "dotenv": "^17.4.2",
-    "electron": "44.10.0",
+    "electron": "45.2.3",
     "electron-builder": "^26.16.1",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
