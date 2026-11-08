@@ -11,6 +11,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { T } from '../../../t.const';
 import { BoardCfg } from '../boards.model';
 import { BoardsService } from '../boards.service';
+import { getViewLayoutSwitch } from '../boards.util';
+import { LayoutService } from '../../../core-ui/layout/layout.service';
 
 /**
  * A view's ⋮ menu, shared by its side-menu row and the title bar. Open it with
@@ -25,6 +27,16 @@ import { BoardsService } from '../boards.service';
   template: `
     <mat-menu #menu="matMenu">
       <ng-template matMenuContent>
+        @if (isXs()) {
+          @let layoutSwitch = viewLayoutSwitch();
+          <button
+            mat-menu-item
+            (click)="toggleViewLayout()"
+          >
+            <mat-icon>{{ layoutSwitch.icon }}</mat-icon>
+            <span>{{ layoutSwitch.label | translate }}</span>
+          </button>
+        }
         <button
           mat-menu-item
           (click)="boardsService.editBoard(board())"
@@ -56,7 +68,17 @@ import { BoardsService } from '../boards.service';
 })
 export class ViewMenuComponent {
   readonly boardsService = inject(BoardsService);
+  readonly isXs = inject(LayoutService).isXs;
   board = input.required<BoardCfg>();
   readonly menu = viewChild.required(MatMenu);
   protected readonly T = T;
+
+  protected viewLayoutSwitch(): ReturnType<typeof getViewLayoutSwitch> {
+    return getViewLayoutSwitch(this.board());
+  }
+
+  protected toggleViewLayout(): void {
+    const board = this.board();
+    this.boardsService.setViewLayout(board, this.viewLayoutSwitch().layout);
+  }
 }
