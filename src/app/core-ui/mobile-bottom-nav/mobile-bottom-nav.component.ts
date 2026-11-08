@@ -22,7 +22,6 @@ import { LayoutService } from '../layout/layout.service';
 import { PluginBridgeService } from '../../plugins/plugin-bridge.service';
 import { PluginIconComponent } from '../../plugins/ui/plugin-icon/plugin-icon.component';
 import { Store } from '@ngrx/store';
-import { TODAY_TAG } from '../../features/tag/tag.const';
 import { T } from '../../t.const';
 import { WorkContextService } from '../../features/work-context/work-context.service';
 import { GlobalConfigService } from '../../features/config/global-config.service';
@@ -67,9 +66,6 @@ export class MobileBottomNavComponent {
   readonly isEntrance = input(false);
 
   readonly T = T;
-  readonly TODAY_TAG = TODAY_TAG;
-  readonly todayTagId = TODAY_TAG.id;
-  readonly todayRoute = `/tag/${TODAY_TAG.id}/tasks`;
 
   readonly layoutService = this._layoutService;
 

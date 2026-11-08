@@ -2,17 +2,6 @@
   class="mobile-bottom-nav"
   [class.entrance]="isEntrance()"
 >
-  <button
-    mat-button
-    class="nav-button"
-    [routerLink]="todayRoute"
-    routerLinkActive="active"
-    [routerLinkActiveOptions]="{ exact: false }"
-    [attr.aria-label]="T.G.TODAY_TAG_TITLE | translate"
-  >
-    <mat-icon>wb_sunny</mat-icon>
-    <span class="nav-label">{{ T.G.TODAY_TAG_TITLE | translate }}</span>
-  </button>
 
   @if (slot(); as slot) {
     <!-- Tap navigates; long-press or contextmenu (right click, menu key) picks
