@@ -16,6 +16,15 @@
   }
 }
 
+// On phones the tab bar occupies only its content height; the selected board
+// panel receives the remaining height instead of being pushed down by a 1fr tab row.
+:host:has(> .mobile-panel-tabs) {
+  @include mq(xs, max) {
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-auto-rows: minmax(0, 1fr);
+  }
+}
+
 .mobile-panel-tabs {
   display: none;
 }
@@ -25,8 +34,8 @@
     display: flex;
     grid-column: 1 / -1;
     gap: var(--s-half);
-    margin: calc(-1 * var(--s-half)) calc(-1 * var(--s2)) 0;
-    padding: 0 var(--s2) var(--s);
+    margin: calc(-1 * var(--s-half)) 0 0;
+    padding: 0 0 var(--s) var(--s-half);
     overflow-x: auto;
     scrollbar-width: none;
     white-space: nowrap;
@@ -34,6 +43,11 @@
     &::-webkit-scrollbar {
       display: none;
     }
+  }
+
+  board-panel {
+    min-height: 0;
+    height: 100%;
   }
 
   .mobile-panel-tab {
