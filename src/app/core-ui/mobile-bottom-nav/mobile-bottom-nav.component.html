@@ -8,10 +8,10 @@
     [routerLink]="tasksRoute()"
     routerLinkActive="active"
     [routerLinkActiveOptions]="{ exact: false }"
-    aria-label="Задачи"
+    [attr.aria-label]="T.G.TASKS | translate"
   >
     <mat-icon>check_circle</mat-icon>
-    <span class="nav-label">Задачи</span>
+    <span class="nav-label">{{ T.G.TASKS | translate }}</span>
   </button>
 
   @if (slot(); as slot) {
