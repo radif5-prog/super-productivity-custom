@@ -501,6 +501,9 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
   private _dragEnterTarget?: HTMLElement;
   private _doubleClickTimeout?: number;
   private _isTaskDeleteTriggered = false;
+  private dragStartTime = 0;
+  private dragStartX = 0;
+  private dragStartY = 0;
   isContextMenuLoaded = signal(false);
 
   // methods come last
@@ -1231,10 +1234,23 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
     );
   }
 
+  onMouseDown(event: MouseEvent): void {
+    this.dragStartTime = Date.now();
+    this.dragStartX = event.clientX;
+    this.dragStartY = event.clientY;
+  }
+
   onTaskCardClick(event: MouseEvent): void {
-    if (event.defaultPrevented) {
+    const elapsedTime = Date.now() - this.dragStartTime;
+    const distance = Math.sqrt(
+      Math.pow(event.clientX - this.dragStartX, 2) +
+        Math.pow(event.clientY - this.dragStartY, 2),
+    );
+
+    if (elapsedTime > 300 || distance > 10) {
       return;
     }
+
     this.showDetailPanel();
   }
 
