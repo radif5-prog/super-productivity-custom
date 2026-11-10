@@ -19,10 +19,12 @@
       (mouseleave)="isFirstLineHover = false"
       class="first-line"
     >
-      <div
-        class="title-and-left-btns-wrapper"
-        (click)="$event.stopPropagation(); titleBarClick($event)"
-      >
+      <!-- Вариант Б, первый шаг:
+           убрать этот click-обработчик, чтобы событие дошло до .inner-wrapper
+           и вызвало onTaskCardClick(). Однако task-title может самостоятельно
+           включать редактирование; для окончательной реализации нужно проверить
+           его обработчики и API. -->
+      <div class="title-and-left-btns-wrapper">
         @if (isTouchSelectionMode()) {
           <!-- Selection ring, not a checkmark: a check means done. -->
           <div

@@ -1377,20 +1377,12 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
       this._multiSelect.clear();
   }
 
-  titleBarClick(event: MouseEvent): void {
-    if (isMultiSelectModifierEvent(event) || this._multiSelect.isTouchSelectionMode()) {
-      return;
-    }
-    const targetEl = event.target as HTMLElement;
-    if (targetEl.closest('task-title')) {
-      return;
-    }
-    if (isTouchActive() && this.task().title.length) {
-      this.toggleShowDetailPanel(event);
-    } else {
-      this.focusSelf();
-    }
-  }
+  // titleBarClick находится в этом месте файла. Сейчас обработчик вызывается
+  // контейнером .title-and-left-btns-wrapper из task.component.html.
+  //
+  // Текущее onTaskCardClick() уже открывает панель закрытой задачи и переключает
+  // её на другую задачу через showDetailPanel() -> setSelectedId(taskId).
+  // Для повторного клика по уже выбранной задаче панель остаётся открытой.
 
   focusPrevious(isFocusReverseIfNotPossible: boolean = false): void {
     if (isTouchActive()) {
