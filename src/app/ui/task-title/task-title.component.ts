@@ -100,6 +100,7 @@ export class TaskTitleComponent implements OnDestroy {
     blurEvent?: FocusEvent;
     submitTrigger: SubmitTrigger;
   }>();
+  readonly valueChanged = output<string>();
 
   private readonly _isFocused = signal(false);
   private readonly _isEditing = signal(false);
@@ -267,6 +268,7 @@ export class TaskTitleComponent implements OnDestroy {
       return;
     }
     this.updateTmpValue(target.value, target);
+    this.valueChanged.emit(this.tmpValue());
   }
 
   // Sanitize pasted content (remove newlines)

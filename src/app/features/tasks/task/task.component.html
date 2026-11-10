@@ -9,7 +9,6 @@
 >
   <div
     (click)="onTaskCardClick($event)"
-    (mousedown)="onMouseDown($event)"
     class="inner-wrapper"
   >
     <div class="box"></div>
@@ -62,6 +61,7 @@
             [style.pointer-events]="isTouchActive() && t.title.length ? 'none' : 'auto'"
             [readonly]="isTouchSelectionMode()"
             #taskTitleEditEl
+            (valueChanged)="updateTaskTitleWhileEditing($event)"
             (valueEdited)="updateTaskTitleIfChanged($event)"
             [value]="t.title"
             class="task-title"

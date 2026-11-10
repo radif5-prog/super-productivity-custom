@@ -501,9 +501,6 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
   private _dragEnterTarget?: HTMLElement;
   private _doubleClickTimeout?: number;
   private _isTaskDeleteTriggered = false;
-  private dragStartTime = 0;
-  private dragStartX = 0;
-  private dragStartY = 0;
   isContextMenuLoaded = signal(false);
 
   // methods come last
@@ -1064,6 +1061,13 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
       });
   }
 
+  updateTaskTitleWhileEditing(newVal: string): void {
+    const task = this.task();
+    if (task.title !== newVal) {
+      this._taskService.update(task.id, { title: newVal });
+    }
+  }
+
   updateTaskTitleIfChanged({
     newVal,
     wasChanged,
@@ -1077,7 +1081,7 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
   }): void {
     const task = this.task();
 
-    if (wasChanged) {
+    if (wasChanged || task.title !== newVal) {
       this._taskService.update(task.id, { title: newVal });
     }
 
@@ -1234,26 +1238,14 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
     );
   }
 
-  onMouseDown(event: MouseEvent): void {
-    this.dragStartTime = Date.now();
-    this.dragStartX = event.clientX;
-    this.dragStartY = event.clientY;
-  }
-
   onTaskCardClick(event: MouseEvent): void {
-    const elapsedTime = Date.now() - this.dragStartTime;
-    const distance = Math.sqrt(
-      Math.pow(event.clientX - this.dragStartX, 2) +
-        Math.pow(event.clientY - this.dragStartY, 2),
-    );
-
-    if (elapsedTime > 300 || distance > 10) {
+    if (this._taskService.selectedTaskId() === this.task().id) {
       return;
     }
 
-    // `toggleShowDetailPanel()` closes the panel when this task is already
-    // selected. A card click is an explicit open/select action instead, so it
-    // must always set the clicked task as selected, including after navigation.
+    // Выбор задачи является источником состояния панели деталей. При смене
+    // проекта selectedTaskId сбрасывается или отличается, поэтому этот вызов
+    // всегда заново открывает панель для кликнутой карточки.
     this.showDetailPanel();
     event.preventDefault();
     event.stopPropagation();
