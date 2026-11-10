@@ -1251,7 +1251,7 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
       return;
     }
 
-    this.showDetailPanel();
+    this.toggleShowDetailPanel(event);
   }
 
   showDetailPanel(): void {
