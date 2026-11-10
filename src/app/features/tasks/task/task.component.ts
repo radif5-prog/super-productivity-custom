@@ -1384,6 +1384,20 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
     );
   }
 
+  onTitleDoubleClick(event: MouseEvent): void {
+    if (
+      isMultiSelectModifierEvent(event) ||
+      this._multiSelect.isTouchSelectionMode() ||
+      this.taskTitleEditEl()?.isEditing()
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.taskTitleEditEl()?.focusInput();
+  }
+
   clearSelectionOnTitleClick(event: MouseEvent): void {
     if (
       !isInteractiveTarget(event.target) &&
