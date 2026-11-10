@@ -879,8 +879,15 @@ export class TaskDetailPanelComponent implements OnInit, AfterViewInit, OnDestro
     }, delayMs);
   }
 
+  updateTaskTitleWhileEditing(newTitle: string): void {
+    const task = this.task();
+    if (task.title !== newTitle) {
+      this.taskService.update(task.id, { title: newTitle });
+    }
+  }
+
   updateTaskTitleIfChanged(isChanged: boolean, newTitle: string): void {
-    if (isChanged) {
+    if (isChanged && this.task().title !== newTitle) {
       this.taskService.update(this.task().id, { title: newTitle });
     }
   }
