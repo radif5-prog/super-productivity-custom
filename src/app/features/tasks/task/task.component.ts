@@ -1251,7 +1251,12 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
       return;
     }
 
-    this.toggleShowDetailPanel(event);
+    // `toggleShowDetailPanel()` closes the panel when this task is already
+    // selected. A card click is an explicit open/select action instead, so it
+    // must always set the clicked task as selected, including after navigation.
+    this.showDetailPanel();
+    event.preventDefault();
+    event.stopPropagation();
   }
 
   showDetailPanel(): void {
