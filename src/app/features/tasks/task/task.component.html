@@ -7,7 +7,10 @@
   (swipeRightTriggered)="onSwipeRightTriggered($event)"
   (swipeLeft)="openContextMenu()"
 >
-  <div class="inner-wrapper">
+  <div
+    (click)="onTaskCardClick($event)"
+    class="inner-wrapper"
+  >
     <div class="box"></div>
 
     <div
@@ -17,7 +20,7 @@
     >
       <div
         class="title-and-left-btns-wrapper"
-        (click)="titleBarClick($event)"
+        (click)="$event.stopPropagation(); titleBarClick($event)"
       >
         @if (isTouchSelectionMode()) {
           <!-- Selection ring, not a checkmark: a check means done. -->
@@ -35,6 +38,7 @@
             [showDoneAnimation]="showDoneAnimation()"
             [showUndoneAnimation]="showUndoneAnimation()"
             (toggled)="toggleTaskDone()"
+            (click)="$event.stopPropagation()"
             [attr.aria-label]="
               (isWontDo() ? T.F.TASK.CMP.TOGGLE_DONE_WONT_DO : T.F.TASK.CMP.TOGGLE_DONE)
                 | translate
@@ -76,7 +80,7 @@
 
       <div class="all-controls-wrapper">
         <div
-          (click)="onTimeWrapperClick($event)"
+          (click)="$event.stopPropagation(); onTimeWrapperClick($event)"
           (keydown.enter)="estimateTime()"
           (keydown.space)="$event.preventDefault(); estimateTime()"
           [attr.role]="!t.subTasks?.length ? 'button' : null"
@@ -124,6 +128,7 @@
         <div class="controls">
           @if (isFirstLineHover && !isTouchActive()) {
             <task-hover-controls
+              (click)="$event.stopPropagation()"
               [isShowAddToToday]="isShowAddToToday()"
               [isShowRemoveFromToday]="isShowRemoveFromToday()"
               [task]="t"

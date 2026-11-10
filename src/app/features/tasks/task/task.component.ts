@@ -1231,6 +1231,13 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
     );
   }
 
+  onTaskCardClick(event: MouseEvent): void {
+    if (event.defaultPrevented) {
+      return;
+    }
+    this.showDetailPanel();
+  }
+
   showDetailPanel(): void {
     this._taskService.setSelectedId(this.task().id);
     this.focusSelf();
