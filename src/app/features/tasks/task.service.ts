@@ -333,8 +333,11 @@ export class TaskService {
   setSelectedId(
     id: string | null,
     taskDetailTargetPanel: TaskDetailTargetPanel = TaskDetailTargetPanel.Default,
+    isSkipToggle: boolean = false,
   ): void {
-    this._store.dispatch(setSelectedTask({ id, taskDetailTargetPanel }));
+    this._store.dispatch(
+      setSelectedTask({ id, taskDetailTargetPanel, isSkipToggle }),
+    );
   }
 
   async setSelectedIdToParentAndSwitchContextIfNecessary(task: TaskCopy): Promise<void> {

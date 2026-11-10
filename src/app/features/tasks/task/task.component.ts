@@ -501,6 +501,9 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
   private _dragEnterTarget?: HTMLElement;
   private _doubleClickTimeout?: number;
   private _isTaskDeleteTriggered = false;
+  private dragStartTime = 0;
+  private dragStartX = 0;
+  private dragStartY = 0;
   isContextMenuLoaded = signal(false);
 
   // methods come last
@@ -1238,21 +1241,37 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
     );
   }
 
+  onMouseDown(event: MouseEvent): void {
+    this.dragStartTime = Date.now();
+    this.dragStartX = event.clientX;
+    this.dragStartY = event.clientY;
+  }
+
   onTaskCardClick(event: MouseEvent): void {
-    if (this._taskService.selectedTaskId() === this.task().id) {
+    const elapsedTime = Date.now() - this.dragStartTime;
+    const distance = Math.sqrt(
+      Math.pow(event.clientX - this.dragStartX, 2) +
+        Math.pow(event.clientY - this.dragStartY, 2),
+    );
+
+    if (elapsedTime > 300 || distance > 10) {
       return;
     }
 
-    // Выбор задачи является источником состояния панели деталей. При смене
-    // проекта selectedTaskId сбрасывается или отличается, поэтому этот вызов
-    // всегда заново открывает панель для кликнутой карточки.
+    const isSameTaskSelected = this._taskService.selectedTaskId() === this.task().id;
+    const isDetailPanelOpen = !!document.querySelector('task-detail-panel');
+
+    if (isSameTaskSelected && isDetailPanelOpen) {
+      return;
+    }
+
     this.showDetailPanel();
     event.preventDefault();
     event.stopPropagation();
   }
 
   showDetailPanel(): void {
-    this._taskService.setSelectedId(this.task().id);
+    this._taskService.setSelectedId(this.task().id, TaskDetailTargetPanel.Default, true);
     this.focusSelf();
   }
 
