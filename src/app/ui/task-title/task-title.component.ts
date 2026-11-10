@@ -52,6 +52,7 @@ export class TaskTitleComponent implements OnDestroy {
   // short-syntax autocomplete config shared across all editor instances
   mentionCfg$: Observable<MentionConfig> = inject(MentionConfigService).mentionConfig$;
 
+  private readonly _elementRef = inject(ElementRef);
   private readonly _isMentionListShown = signal(false);
   readonly readonly = input<boolean>(false); // When true, disables editing and only displays the value
 
@@ -119,9 +120,8 @@ export class TaskTitleComponent implements OnDestroy {
     });
   }
 
-  // Click to enter edit mode or follow links.
-  // Using click (not mousedown) allows CDK drag-and-drop to work from the title:
-  // mousedown propagates → CDK tracks pointer → drag (≥5px) prevents click; click (<5px) enters edit mode.
+  // A click in a task-list row opens its detail panel. Inline title editing is
+  // available only for the copy rendered inside that panel.
   @HostListener('click', ['$event'])
   onClick(event: MouseEvent): void {
     const target = event.target as HTMLElement | null;
@@ -140,8 +140,13 @@ export class TaskTitleComponent implements OnDestroy {
       return;
     }
 
-    // Don't enter edit mode if readonly or clicking the textarea (already editing)
-    if (this.readonly() || target?.tagName === 'TEXTAREA') {
+    // Let clicks on list-card titles bubble to the card handler, which opens
+    // the detail panel. The title in that panel remains inline-editable.
+    if (
+      this.readonly() ||
+      target?.tagName === 'TEXTAREA' ||
+      !this._elementRef.nativeElement.closest('task-detail-panel')
+    ) {
       return;
     }
 
