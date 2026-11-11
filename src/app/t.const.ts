@@ -2694,6 +2694,7 @@ const T = {
     SAVE: 'G.SAVE',
     SHARE: 'G.SHARE',
     SUBMIT: 'G.SUBMIT',
+    TASKS: 'G.TASKS',
     TITLE: 'G.TITLE',
     TODAY: 'G.TODAY',
     TODAY_TAG_TITLE: 'G.TODAY_TAG_TITLE',

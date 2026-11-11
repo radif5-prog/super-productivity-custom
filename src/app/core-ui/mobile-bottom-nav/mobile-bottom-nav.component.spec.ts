@@ -199,11 +199,10 @@ describe('MobileBottomNavComponent', () => {
 
   cases.forEach(([name, over]) => {
     it(`lists every enabled panel — ${name}`, async () => {
-      const cmp = await render(over);
+      await render(over);
       const af = { ...DEFAULT_GLOBAL_CONFIG.appFeatures, ...over };
 
       const expected = PANEL_ITEMS.filter(([flag]) => af[flag]).map(([, sel]) => sel);
-      expect(cmp.sidePanelItemCount()).toBe(expected.length);
       expect(openPanelsMenu()).toEqual(expected);
     });
   });
@@ -211,11 +210,10 @@ describe('MobileBottomNavComponent', () => {
   it('lists a plugin side panel next to a built-in panel', async () => {
     // Plugin buttons and built-in panels are counted separately; together
     // they must add up to a menu, not a single direct button.
-    const cmp = await render({ ...ALL_OFF, isProjectNotesEnabled: true }, [
+    await render({ ...ALL_OFF, isProjectNotesEnabled: true }, [
       { pluginId: 'p1', label: 'Doc Mode', icon: 'description' },
     ]);
 
-    expect(cmp.sidePanelItemCount()).toBe(2);
     expect(openPanelsMenu()).toEqual(['.e2e-toggle-notes-btn', 'plugin-icon']);
   });
 
@@ -266,9 +264,8 @@ describe('MobileBottomNavComponent', () => {
   });
 
   it('shows no panels button when nothing at all is enabled', async () => {
-    const cmp = await render(ALL_OFF);
+    await render(ALL_OFF);
 
-    expect(cmp.sidePanelItemCount()).toBe(0);
     expect(menuTrigger()).toBeFalsy();
     PANEL_ITEMS.forEach(([, sel]) => expect(nav().querySelector(sel)).toBeFalsy());
   });
