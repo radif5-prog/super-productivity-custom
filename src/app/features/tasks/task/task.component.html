@@ -1,7 +1,9 @@
 @let t = task();
 <swipe-block
   [isDone]="t.isDone"
-  [canSwipe]="!taskTitleEditEl?.isEditing() && !isTouchSelectionMode()"
+  [canSwipe]="
+    !taskTitleEditEl?.isEditing() && !isTouchSelectionMode() && !isInBoardView()
+  "
   (swipeStart)="onSwipeStart()"
   (swipeRight)="toggleTaskDone()"
   (swipeRightTriggered)="onSwipeRightTriggered($event)"

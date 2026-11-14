@@ -50,7 +50,14 @@ const DEFAULT_VIEW_TAGS = [IMPORTANT_TAG, URGENT_TAG, IN_PROGRESS_TAG];
   animations: [expandOutOnlyAnimation],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    '(wheel)': 'onBoardWheel($event)',
+    '(pointerdown)': 'onBoardPointerDown($event)',
+    '(pointermove)': 'onBoardPointerMove($event)',
+    '(pointerup)': 'onBoardPointerUp($event)',
+    '(pointercancel)': 'onBoardPointerUp($event)',
+    '(contextmenu)': 'onContextMenu($event)',
     '[style.--cols]': 'boardCfg().cols',
+    '[class.isDraggingBoard]': 'isDraggingBoard',
     // One column reads like a task list: list width, centered.
     '[class.isSingleColumn]': 'boardCfg().cols <= 1',
     '[class.isListLayout]': 'isListLayout()',
@@ -69,6 +76,15 @@ export class BoardComponent {
   private _selectedMobilePanelId = signal<string | null>(null);
   private _panels = viewChildren(BoardPanelComponent);
   private _panelElements = viewChildren(BoardPanelComponent, { read: ElementRef });
+
+  isDraggingBoard = false;
+  startX = 0;
+  startY = 0;
+  startScrollLeft = 0;
+  private _isMobileBoardSwipe = false;
+  private _mobileTabsPointerId: number | null = null;
+  private _mobileTabsStartX = 0;
+  private _mobileTabsStartY = 0;
 
   async adjacentPanel(sourceId: string, event: BoardPanelNavigation): Promise<void> {
     const panels = this._panels();
@@ -122,6 +138,158 @@ export class BoardComponent {
 
   selectMobilePanel(panelId: string): void {
     this._selectedMobilePanelId.set(panelId);
+  }
+
+  onBoardWheel(event: WheelEvent): void {
+    const boardElement = event.currentTarget as HTMLElement;
+    boardElement.scrollLeft += event.deltaY;
+    event.preventDefault();
+  }
+
+  onContextMenu(event: MouseEvent): void {
+    if (
+      this.isDraggingBoard ||
+      !(event.target as Element).closest(
+        '[data-task-id], .cdk-drag, button, a, input, textarea, select, [contenteditable="true"]',
+      )
+    ) {
+      event.preventDefault();
+    }
+  }
+
+  onBoardPointerDown(event: PointerEvent): void {
+    if (event.pointerType === 'touch') {
+      // Do not let a board gesture reach MagicSideNav's global swipe listener.
+      event.stopPropagation();
+    }
+
+    this._isMobileBoardSwipe = false;
+    if (
+      !event.isPrimary ||
+      event.button !== 0 ||
+      (event.target as Element).closest('task, button, a, input, textarea, .cdk-drag')
+    ) {
+      return;
+    }
+
+    this.startX = event.pageX;
+    this.startY = event.pageY;
+
+    if (event.pointerType === 'touch' && this.isXs() && !this.isListLayout()) {
+      this._isMobileBoardSwipe = true;
+      this.isDraggingBoard = true;
+      return;
+    }
+
+    this.isDraggingBoard = true;
+    this.startScrollLeft = this._element.nativeElement.scrollLeft;
+  }
+
+  onBoardPointerMove(event: PointerEvent): void {
+    if (event.pointerType === 'touch') {
+      // Keep horizontal board panning isolated from the global side-nav gesture.
+      event.stopPropagation();
+    }
+
+    if (!this.isDraggingBoard || !event.isPrimary) {
+      return;
+    }
+
+    // On a phone in board mode columns occupy the full width. A horizontal
+    // gesture switches the active column on pointerup instead of scrolling.
+    if (this._isMobileBoardSwipe) {
+      return;
+    }
+
+    const dx = event.pageX - this.startX;
+    const dy = event.pageY - this.startY;
+    if (Math.abs(dy) > Math.abs(dx)) {
+      return;
+    }
+
+    this._element.nativeElement.scrollLeft = this.startScrollLeft - dx;
+    event.preventDefault();
+  }
+
+  onBoardPointerUp(event: PointerEvent): void {
+    if (
+      this._isMobileBoardSwipe &&
+      event.pointerType === 'touch' &&
+      this.isXs() &&
+      !this.isListLayout()
+    ) {
+      event.stopPropagation();
+
+      const dx = event.pageX - this.startX;
+      const dy = event.pageY - this.startY;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        const panels = this.boardCfg().panels;
+        const currentIndex = panels.findIndex(
+          (panel) => panel.id === this.selectedMobilePanelId(),
+        );
+        const nextPanel = panels[currentIndex + (dx < 0 ? 1 : -1)];
+        if (nextPanel) {
+          this.selectMobilePanel(nextPanel.id);
+        }
+      }
+    }
+
+    this._isMobileBoardSwipe = false;
+    this.isDraggingBoard = false;
+  }
+
+  onMobileTabsPointerDown(event: PointerEvent): void {
+    if (event.pointerType !== 'touch' || !event.isPrimary) {
+      return;
+    }
+
+    // Tabs are part of the board, not a side-nav swipe origin.
+    event.stopPropagation();
+    this._mobileTabsPointerId = event.pointerId;
+    this._mobileTabsStartX = event.pageX;
+    this._mobileTabsStartY = event.pageY;
+  }
+
+  onMobileTabsPointerMove(event: PointerEvent): void {
+    if (
+      event.pointerType !== 'touch' ||
+      event.pointerId !== this._mobileTabsPointerId ||
+      !event.isPrimary
+    ) {
+      return;
+    }
+
+    event.stopPropagation();
+    const dx = event.pageX - this._mobileTabsStartX;
+    const dy = event.pageY - this._mobileTabsStartY;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      event.preventDefault();
+    }
+  }
+
+  onMobileTabsPointerUp(event: PointerEvent): void {
+    if (event.pointerType !== 'touch' || event.pointerId !== this._mobileTabsPointerId) {
+      return;
+    }
+
+    event.stopPropagation();
+    const dx = event.pageX - this._mobileTabsStartX;
+    const dy = event.pageY - this._mobileTabsStartY;
+    this._mobileTabsPointerId = null;
+
+    if (Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy)) {
+      return;
+    }
+
+    const panels = this.boardCfg().panels;
+    const currentIndex = panels.findIndex(
+      (panel) => panel.id === this.selectedMobilePanelId(),
+    );
+    const nextIndex = currentIndex + (dx < 0 ? 1 : -1);
+    const nextPanel = panels[nextIndex];
+    if (nextPanel) {
+      this.selectMobilePanel(nextPanel.id);
+    }
   }
 
   constructor() {

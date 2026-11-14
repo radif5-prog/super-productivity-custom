@@ -544,6 +544,10 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
    * modifier variants are handled on `click` in onHostClick. Shift+mousedown
    * also suppresses native text selection.
    */
+  isInBoardView(): boolean {
+    return !!this._elementRef.nativeElement.closest('board');
+  }
+
   onHostMouseDown(ev: MouseEvent): void {
     if (ev.button !== 0 || !this._isInnermostTaskFor(ev.target)) {
       return;

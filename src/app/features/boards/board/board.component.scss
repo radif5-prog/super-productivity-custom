@@ -10,6 +10,25 @@
   min-height: 100%;
   position: relative;
   overflow: auto;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  -webkit-touch-callout: none;
+
+  &.isDraggingBoard {
+    cursor: grabbing;
+    user-select: none;
+
+    board-panel {
+      cursor: grabbing;
+    }
+  }
+
+  // Columns contain task cards and their interactive controls. Reset the cursor
+  // inherited from the board so grab is reserved for gaps and the board background.
+  board-panel {
+    cursor: default;
+  }
 
   @include mq(xs, max) {
     grid-template-columns: repeat(1, 1fr);

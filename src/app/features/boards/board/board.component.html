@@ -42,6 +42,10 @@
     class="mobile-panel-tabs"
     role="tablist"
     [attr.aria-label]="boardCfg().title"
+    (pointerdown)="onMobileTabsPointerDown($event)"
+    (pointermove)="onMobileTabsPointerMove($event)"
+    (pointerup)="onMobileTabsPointerUp($event)"
+    (pointercancel)="onMobileTabsPointerUp($event)"
   >
     @for (panel of boardCfg().panels; track panel.id) {
       <button
