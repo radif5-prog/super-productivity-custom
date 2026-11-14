@@ -44,7 +44,7 @@ export class AddSubtaskInputComponent {
   readonly parentId = input.required<string>();
   readonly closed = output<AddSubtaskInputCloseReason>();
   readonly titleDraft = signal('');
-  readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('inputEl');
+  readonly inputEl = viewChild<ElementRef<HTMLTextAreaElement>>('inputEl');
 
   constructor() {
     // Own the initial focus instead of relying solely on the host's
@@ -57,6 +57,10 @@ export class AddSubtaskInputComponent {
 
   focus(): void {
     this.inputEl()?.nativeElement.focus();
+  }
+
+  onInput(): void {
+    this._resizeToContent();
   }
 
   onKeydown(ev: KeyboardEvent): void {
@@ -187,8 +191,19 @@ export class AddSubtaskInputComponent {
     // cleared value back through the one-way [ngModel] binding.
     if (inputEl) {
       inputEl.value = '';
+      this._resizeToContent();
     }
     return true;
+  }
+
+  private _resizeToContent(): void {
+    const inputEl = this.inputEl()?.nativeElement;
+    if (!inputEl) {
+      return;
+    }
+
+    inputEl.style.height = 'auto';
+    inputEl.style.height = `${inputEl.scrollHeight}px`;
   }
 
   private _close(reason: AddSubtaskInputCloseReason): void {
