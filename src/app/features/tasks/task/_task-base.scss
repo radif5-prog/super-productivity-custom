@@ -71,10 +71,8 @@
 
 .inner-wrapper {
   position: relative;
-  // NOTE: -1 px because we move the box slightly up
-  padding: calc(var(--task-inner-padding-top-bottom) - 1px) 0
-    var(--task-inner-padding-top-bottom);
-  margin-bottom: 0;
+  padding: 8px 12px;
+  margin-bottom: 4px;
 }
 
 .box {
@@ -86,10 +84,14 @@
   transition: var(--transition-standard);
   transition-property: background-color, box-shadow;
   border: var(--task-border);
-  border-radius: var(--task-border-radius);
+  border-radius: 8px;
   box-shadow: none;
 
-  background: var(--task-c-bg);
+  background: rgba(255, 255, 255, 0.03);
+
+  :host:hover & {
+    background: rgba(255, 255, 255, 0.06);
+  }
 
   :host-context(.isDarkTheme).isDone & {
     background: var(--task-c-bg-done);

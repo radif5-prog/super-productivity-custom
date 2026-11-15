@@ -16,9 +16,13 @@ h2 {
 .wrapper {
   height: 100%;
   width: 100%;
+  max-width: none !important;
+  margin: 0 !important;
   position: absolute;
   top: 0;
   left: 0;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
   transition: var(--transition-enter);
   overflow: hidden;
 
@@ -26,6 +30,11 @@ h2 {
     transition: var(--transition-duration-xs) var(--ani-standard-timing);
     opacity: 0;
   }
+}
+
+.task-list-wrapper {
+  width: 100%;
+  margin: 0;
 }
 
 .work-view-header {

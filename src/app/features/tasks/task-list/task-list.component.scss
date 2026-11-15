@@ -5,10 +5,18 @@
   text-align: left;
   // min-height: 50px;
   list-style: none;
-  // add a little padding to top and bottom, to make drag dropping easier
-  padding: 5px 0;
+  // Keep the work-view list wide and aligned with the left content edge.
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 900px;
+  padding: 5px 0 5px 24px;
   margin: 0;
   position: relative;
+
+  @include mq(xs, max) {
+    max-width: none;
+    padding: 5px 0;
+  }
 
   ::ng-deep task-list & {
     margin: var(--s-quarter) 5px 0 5px;
@@ -28,8 +36,7 @@
 // which is awkwardly small to hit (#7905 scenario B). The matching :host
 // padding is dropped for sub-lists so the visible gap stays compact.
 :host-context(.sub-tasks) {
-  padding-top: 0;
-  padding-bottom: 0;
+  padding: 0;
 }
 
 .task-list-inner[data-list-id='SUB'] {
