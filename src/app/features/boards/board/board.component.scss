@@ -67,6 +67,7 @@
   board-panel {
     min-height: 0;
     height: 100%;
+    animation: mobile-panel-enter var(--transition-duration-m) var(--ani-standard-timing);
   }
 
   .mobile-panel-tab {
@@ -96,6 +97,18 @@
       outline: var(--focus-ring-width) solid var(--focus-ring-color);
       outline-offset: calc(-1 * var(--focus-ring-width));
     }
+  }
+}
+
+@keyframes mobile-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateX(var(--s));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 

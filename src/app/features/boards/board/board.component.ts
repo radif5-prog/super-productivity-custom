@@ -222,7 +222,7 @@ export class BoardComponent {
 
       const dx = event.pageX - this.startX;
       const dy = event.pageY - this.startY;
-      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
         const panels = this.boardCfg().panels;
         const currentIndex = panels.findIndex(
           (panel) => panel.id === this.selectedMobilePanelId(),
@@ -277,7 +277,7 @@ export class BoardComponent {
     const dy = event.pageY - this._mobileTabsStartY;
     this._mobileTabsPointerId = null;
 
-    if (Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy)) {
+    if (Math.abs(dx) < 50 || Math.abs(dx) <= Math.abs(dy)) {
       return;
     }
 
