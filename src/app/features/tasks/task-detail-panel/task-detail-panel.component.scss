@@ -175,3 +175,9 @@ progress-bar {
 .sub-tasks {
   --task-hover-underlay: var(--task-detail-bg);
 }
+
+::ng-deep task-detail-item {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
