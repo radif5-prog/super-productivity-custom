@@ -109,9 +109,6 @@ export class MagicNavConfigService {
   private readonly isPlannerEnabled = computed(
     () => this._configService.appFeatures().isPlannerEnabled,
   );
-  private readonly isBoardsEnabled = computed(
-    () => this._configService.appFeatures().isBoardsEnabled,
-  );
   private readonly isDonatePageEnabled = computed(
     () => this._configService.appFeatures().isDonatePageEnabled,
   );
@@ -166,9 +163,6 @@ export class MagicNavConfigService {
 
       // Separator
       { type: 'separator', id: 'sep-2' },
-
-      // Views Section (boards)
-      ...this._buildViewGroupItems(),
 
       // Projects Section
       {
@@ -455,23 +449,6 @@ export class MagicNavConfigService {
     }
 
     return items;
-  }
-
-  // Boards are listed one by one as views, in their own section.
-  private _buildViewGroupItems(): NavItem[] {
-    if (!this.isBoardsEnabled()) {
-      return [];
-    }
-    return [
-      {
-        type: 'viewGroup',
-        id: 'views',
-        label: T.MH.BOARDS,
-        icon: 'expand_more',
-        featureConfigKey: 'isBoardsEnabled',
-        action: () => this._toggleViewsExpanded(),
-      },
-    ];
   }
 
   private _buildPluginItems(): NavItem[] {

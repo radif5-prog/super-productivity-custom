@@ -137,6 +137,8 @@ const NEW_TASK_DRAFT_ID = 'NEW_TASK_DRAFT';
 })
 export class BoardPanelComponent implements TaskCardList, ViewTaskListHost {
   panelCfg = input.required<BoardPanelCfg>();
+  // Set only by the project page. Standalone views retain their rule/default-project behavior.
+  projectId = input<string | undefined>();
   // One-column views show task rows (`task-list`) instead of cards.
   isListLayout = input<boolean>(false);
   // List layout with several panels: this panel is one section of the list.
@@ -425,8 +427,21 @@ export class BoardPanelComponent implements TaskCardList, ViewTaskListHost {
   tasks = computed(() => {
     const panelCfg = this.panelCfg();
     const sortKey = this.sortKey();
+    const projectIds = panelCfg.projectIds ?? [''];
+    const matchingTasks = matchPanelTasks(
+      this.allTasks(),
+      this.criteria(),
+      this.criteriaCtx(),
+    );
+    // Keep the project boundary explicit here as well as in panelToCriteria().
+    // It prevents a malformed or legacy panel configuration from displaying
+    // tasks of another project.
+    const projectTasks = projectIds.includes('')
+      ? matchingTasks
+      : matchingTasks.filter((task) => projectIds.includes(task.projectId));
+
     return orderPanelTasks(
-      matchPanelTasks(this.allTasks(), this.criteria(), this.criteriaCtx()),
+      projectTasks,
       panelCfg.taskIds,
       sortKey
         ? {
@@ -949,6 +964,11 @@ export class BoardPanelComponent implements TaskCardList, ViewTaskListHost {
   // Like the add-task bar outside a project: the configured default project,
   // else the Inbox.
   private readonly _defaultProjectId = computed(() => {
+    const projectId = this.projectId();
+    if (projectId) {
+      return projectId;
+    }
+
     const id = this._config.cfg()?.tasks?.defaultProjectId;
     return id && this._viewCtx.projectById().has(id) ? id : INBOX_PROJECT.id;
   });

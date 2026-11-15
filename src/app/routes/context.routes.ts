@@ -44,7 +44,12 @@ export const PROJECT_CHILD_ROUTES: Routes = [
   {
     path: 'tasks',
     component: ProjectTaskPageComponent,
-    data: { page: 'project-tasks' },
+    data: { page: 'project-tasks', viewMode: 'list' },
+  },
+  {
+    path: 'board',
+    component: ProjectTaskPageComponent,
+    data: { page: 'project-tasks', viewMode: 'board' },
   },
   ...SHARED_CONTEXT_ROUTES,
 ];

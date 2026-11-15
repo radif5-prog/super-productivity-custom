@@ -1,11 +1,22 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { MatButton } from '@angular/material/button';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+} from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { CdkDropListGroup } from '@angular/cdk/drag-drop';
 import { TranslatePipe } from '@ngx-translate/core';
 import { WorkContextService } from '../../features/work-context/work-context.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { WorkViewComponent } from '../../features/work-view/work-view.component';
+import { BoardComponent } from '../../features/boards/board/board.component';
+import { BoardsService } from '../../features/boards/boards.service';
 import { ProjectService } from '../../features/project/project.service';
 import { PlainspaceClaimPoolService } from '../../features/plainspace/plainspace-claim-pool.service';
 import { PlainspaceSharedTask } from '../../features/plainspace/plainspace-shared-task.model';
@@ -16,14 +27,29 @@ import { T } from '../../t.const';
   templateUrl: './project-task-page.component.html',
   styleUrls: ['./project-task-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButton, TranslatePipe, WorkViewComponent],
+  imports: [
+    MatButton,
+    MatIconButton,
+    MatIcon,
+    TranslatePipe,
+    RouterLink,
+    CdkDropListGroup,
+    WorkViewComponent,
+    BoardComponent,
+  ],
 })
 export class ProjectTaskPageComponent {
   workContextService = inject(WorkContextService);
   private readonly _projectService = inject(ProjectService);
   private readonly _plainspaceClaimPoolService = inject(PlainspaceClaimPoolService);
+  private readonly _boardsService = inject(BoardsService);
+  private readonly _route = inject(ActivatedRoute);
 
   readonly T = T;
+  readonly isBoardView = toSignal(
+    this._route.data.pipe(map((data) => data['viewMode'] === 'board')),
+    { initialValue: false },
+  );
 
   // Unclaimed Plainspace tasks (only for projects shared on Plainspace); fed
   // into the work view's read-only "claim pool" panel. `currentProject$` re-emits
@@ -57,6 +83,30 @@ export class ProjectTaskPageComponent {
   readonly currentProject = toSignal(this._projectService.currentProject$, {
     initialValue: null,
   });
+  readonly projectBoard = computed(() => {
+    const project = this.currentProject();
+    return project
+      ? this._boardsService
+          .boards()
+          .find((board) => board.id === `PROJECT_BOARD_${project.id}`)
+      : undefined;
+  });
+
+  constructor() {
+    effect(() => {
+      const project = this.currentProject();
+      if (!project) {
+        return;
+      }
+
+      const viewMode = this.isBoardView() ? 'board' : 'list';
+      localStorage.setItem(`project-view-mode:${project.id}`, viewMode);
+
+      if (viewMode === 'board') {
+        this._boardsService.ensureProjectBoard(project);
+      }
+    });
+  }
 
   restoreProject(): void {
     const project = this.currentProject();

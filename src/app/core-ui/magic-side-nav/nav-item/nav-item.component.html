@@ -6,7 +6,7 @@
 
   <button
     #routeBtn
-    [routerLink]="[type() === 'TAG' ? 'tag' : 'project', workContext()!.id, 'tasks']"
+    [routerLink]="workContextRoute()"
     routerLinkActive="active"
     class="nav-link"
     [class.has-tasks]="nrOfOpenTasks() > 0"

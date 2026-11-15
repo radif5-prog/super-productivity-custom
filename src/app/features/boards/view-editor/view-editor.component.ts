@@ -380,6 +380,16 @@ export class ViewEditorComponent {
   }
 
   private _newPanel(): BoardPanelCfg {
-    return { ...DEFAULT_PANEL_CFG, id: nanoid() };
+    const projectBoardIdPrefix = 'PROJECT_BOARD_';
+    const boardId = this.board().id;
+    const projectId = boardId.startsWith(projectBoardIdPrefix)
+      ? boardId.slice(projectBoardIdPrefix.length)
+      : undefined;
+
+    return {
+      ...DEFAULT_PANEL_CFG,
+      id: nanoid(),
+      ...(projectId ? { projectIds: [projectId] } : {}),
+    };
   }
 }

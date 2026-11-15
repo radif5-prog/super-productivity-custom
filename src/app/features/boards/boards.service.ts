@@ -6,8 +6,14 @@ import { TranslateService } from '@ngx-translate/core';
 import { nanoid } from 'nanoid';
 import { selectAllBoards } from './store/boards.selectors';
 import { BoardsActions } from './store/boards.actions';
-import { BoardCfg } from './boards.model';
+import {
+  BoardCfg,
+  BoardPanelCfgScheduledState,
+  BoardPanelCfgTaskDoneState,
+  BoardPanelCfgTaskTypeFilter,
+} from './boards.model';
 import { DEFAULT_BOARD_CFG } from './boards.const';
+import { Project } from '../project/project.model';
 import { getLayoutChanges, translateViewTitle, ViewLayout } from './boards.util';
 import { DialogConfirmComponent } from '../../ui/dialog-confirm/dialog-confirm.component';
 import { T } from '../../t.const';
@@ -29,6 +35,96 @@ export class BoardsService {
   private _snackService = inject(SnackService);
 
   readonly boards = this._store.selectSignal(selectAllBoards);
+  private readonly _projectBoardIdsBeingCreated = new Set<string>();
+
+  /**
+   * Returns the persistent Kanban board belonging to a project. Project boards
+   * deliberately do not inherit the global Kanban template: its tag-based
+   * rules leak tasks from other projects and require optional default tags.
+   */
+  ensureProjectBoard(project: Project): void {
+    const id = `PROJECT_BOARD_${project.id}`;
+    const projectBoard = this._createProjectBoard(project);
+    const existingBoard = this.boards().find((board) => board.id === id);
+
+    if (existingBoard) {
+      // Migrate only the previous tag-based KANBAN_DEFAULT copy. Do not use
+      // `isParentTasksOnly` as a migration marker: a column added by the board
+      // editor may intentionally have its default `false` value, and replacing
+      // the whole board here would immediately discard that new column.
+      if (
+        existingBoard.panels.some(
+          (panel) => panel.includedTagIds.length > 0 || panel.excludedTagIds.length > 0,
+        )
+      ) {
+        this._store.dispatch(
+          BoardsActions.updateBoard({
+            id,
+            updates: {
+              title: projectBoard.title,
+              cols: projectBoard.cols,
+              panels: projectBoard.panels,
+            },
+          }),
+        );
+      }
+      return;
+    }
+
+    if (this._projectBoardIdsBeingCreated.has(id)) {
+      return;
+    }
+
+    this._projectBoardIdsBeingCreated.add(id);
+    this._store.dispatch(BoardsActions.addBoard({ board: projectBoard }));
+  }
+
+  private _createProjectBoard(project: Project): BoardCfg {
+    const createPanel = (
+      id: string,
+      title: string,
+      taskDoneState: BoardPanelCfgTaskDoneState,
+      scheduledState: BoardPanelCfgScheduledState,
+    ) => ({
+      id,
+      title,
+      taskIds: [],
+      projectIds: [project.id],
+      includedTagIds: [],
+      excludedTagIds: [],
+      taskDoneState,
+      scheduledState,
+      backlogState: BoardPanelCfgTaskTypeFilter.All,
+      // Subtasks stay beneath their parent task and never become board cards.
+      isParentTasksOnly: true,
+    });
+
+    return {
+      id: `PROJECT_BOARD_${project.id}`,
+      title: project.title,
+      cols: 3,
+      panels: [
+        createPanel(
+          `PROJECT_${project.id}_TODO`,
+          T.F.BOARDS.DEFAULT.TO_DO,
+          BoardPanelCfgTaskDoneState.UnDone,
+          BoardPanelCfgScheduledState.NotScheduled,
+        ),
+        createPanel(
+          `PROJECT_${project.id}_IN_PROGRESS`,
+          T.F.BOARDS.DEFAULT.IN_PROGRESS,
+          BoardPanelCfgTaskDoneState.UnDone,
+          BoardPanelCfgScheduledState.Scheduled,
+        ),
+        createPanel(
+          `PROJECT_${project.id}_DONE`,
+          T.F.BOARDS.DEFAULT.DONE,
+          BoardPanelCfgTaskDoneState.Done,
+          BoardPanelCfgScheduledState.All,
+        ),
+      ],
+    };
+  }
 
   /**
    * A view just created here (Create, Save as view, Duplicate) that the view

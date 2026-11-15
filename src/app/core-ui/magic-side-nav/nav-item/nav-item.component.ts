@@ -156,6 +156,20 @@ export class NavItemComponent {
     return !!wc && wc.id === this.activeWorkContextId();
   });
 
+  readonly workContextRoute = computed<readonly string[]>(() => {
+    const workContext = this.workContext();
+    if (!workContext) {
+      return [];
+    }
+
+    if (this.type() === WorkContextType.TAG) {
+      return ['tag', workContext.id, 'tasks'];
+    }
+
+    const viewMode = localStorage.getItem(`project-view-mode:${workContext.id}`);
+    return ['project', workContext.id, viewMode === 'board' ? 'board' : 'tasks'];
+  });
+
   isHidden = computed<boolean>(() => {
     const wc = this.workContext();
     return !!(wc as Project | null)?.isHiddenFromMenu;

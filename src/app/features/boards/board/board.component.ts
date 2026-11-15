@@ -73,6 +73,7 @@ export class BoardComponent {
   private _injector = inject(Injector);
 
   boardCfg = input.required<BoardCfg>();
+  projectId = input<string | undefined>();
   private _selectedMobilePanelId = signal<string | null>(null);
   private _panels = viewChildren(BoardPanelComponent);
   private _panelElements = viewChildren(BoardPanelComponent, { read: ElementRef });

@@ -21,10 +21,32 @@
     </button>
   </div>
 }
-<work-view
-  [unclaimedTasks]="unclaimedTasks()"
-  [backlogTasks]="backlogTasks()"
-  [doneTasks]="doneTasks()"
-  [isShowBacklog]="isShowBacklog()"
-  [undoneTasks]="undoneTasks()"
-></work-view>
+<div class="project-view-actions">
+  <a
+    mat-icon-button
+    [routerLink]="['/project', currentProject()?.id, isBoardView() ? 'tasks' : 'board']"
+    [attr.aria-label]="isBoardView() ? 'Switch to list view' : 'Switch to board view'"
+  >
+    <mat-icon>{{ isBoardView() ? 'view_list' : 'view_kanban' }}</mat-icon>
+  </a>
+</div>
+
+@if (isBoardView()) {
+  @if (projectBoard(); as board) {
+    <div class="project-board-wrapper">
+      <board
+        [boardCfg]="board"
+        [projectId]="currentProject()?.id"
+        cdkDropListGroup
+      ></board>
+    </div>
+  }
+} @else {
+  <work-view
+    [unclaimedTasks]="unclaimedTasks()"
+    [backlogTasks]="backlogTasks()"
+    [doneTasks]="doneTasks()"
+    [isShowBacklog]="isShowBacklog()"
+    [undoneTasks]="undoneTasks()"
+  ></work-view>
+}

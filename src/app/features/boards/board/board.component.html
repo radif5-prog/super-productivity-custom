@@ -66,6 +66,7 @@
   @if (!isXs() || isListLayout() || selectedMobilePanelId() === panel.id) {
     <board-panel
       [panelCfg]="panel"
+      [projectId]="projectId()"
       [isListLayout]="isListLayout()"
       [isSection]="isSectioned()"
       (editBoard)="editBoard()"
